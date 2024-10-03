@@ -1,3 +1,17 @@
 3/10/24
 first attempt at a python webapp
 using: python, flask, git
+remeber to setup environment variables for flask
+    in windows: open up terminal window in vscode (control + shift + `)
+                set FLASK_APP=hello
+                set FLASK_ENV=development
+
+                if using powershell, 
+                    $env:FLASK_APP="hello"
+                    $env:FLASK_ENV="development"
+
+                run flask!:
+                    flask run 
+                        sometimes env can not find flask.exe
+                        set it up or go to C:\Users\Hanna\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\Scripts\flask.exe run
+
