@@ -20,14 +20,5 @@ remeber to setup environment variables for flask
           run python init_db.py
          
 
-    <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    
-    <title>Hanna's Diary 🧀</title>
-</head>
-<body>
 
-</body>
-</html>
+Changing over the database to connect to the mariadb database on the fileserver at home

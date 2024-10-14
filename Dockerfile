@@ -14,8 +14,8 @@ COPY templates/ /api-flask/templates/
 # upgrade ip and install py dependencies
 RUN pip3 install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
-# expose port 5001
-EXPOSE 5001
+# expose port 5000 remember to set the port in the startup command
+EXPOSE 5000
 
 # run flask on non standard port 5001
 CMD ["flask","-e","flaskenv.txt", "run"]
