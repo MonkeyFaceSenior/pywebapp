@@ -1,3 +1,6 @@
+homeysrv:5050
+192.168.69.207;5050
+
 3/10/24
 first attempt at a python webapp
 using: python, flask, git
@@ -21,4 +24,9 @@ remeber to setup environment variables for flask
          
 
 
+<<<<<<< HEAD
 Changing over the database to connect to the mariadb database on the fileserver at home
+=======
+</body>
+</html>
+>>>>>>> 933207442487f46e81bd4cfdcb250870dbfa6f9a
