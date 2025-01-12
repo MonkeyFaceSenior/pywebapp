@@ -1,3 +1,6 @@
+homeysrv:5050
+192.168.69.207;5050
+
 3/10/24
 first attempt at a python webapp
 using: python, flask, git
