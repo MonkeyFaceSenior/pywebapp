@@ -24,9 +24,8 @@ remeber to setup environment variables for flask
          
 
 
-<<<<<<< HEAD
 Changing over the database to connect to the mariadb database on the fileserver at home
-=======
-</body>
-</html>
->>>>>>> 933207442487f46e81bd4cfdcb250870dbfa6f9a
+    Server: homeysrv.local.lau.fm
+    database name: hannadiary
+    database user: diary
+    database password: Abc123321!
