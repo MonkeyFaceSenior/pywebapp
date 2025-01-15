@@ -1,11 +1,11 @@
 # main page in flask diary app
-import sqlite3
+import mysql.connector
 from flask import Flask, render_template, request, url_for, flash, redirect
 from werkzeug.exceptions import abort
 
 def get_db_connection():
-    conn = sqlite3.connect('./flask_blog/database.db')
-    conn.row_factory = sqlite3.Row
+    conn = ('./flask_blog/database.db')
+    conn.row_factory = mysql.connector.Row
     return conn
 
 def get_post(post_id):
