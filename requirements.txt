@@ -3,3 +3,4 @@ Werkzeug==3.0.4
 python-dotenv==1.0.1
 mariadb==1.1.10
 packaging==24.1
+mysql-connector-python==9.1.0
