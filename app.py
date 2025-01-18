@@ -4,17 +4,17 @@ from flask import Flask, render_template, request, url_for, flash, redirect
 from werkzeug.exceptions import abort
 
 def get_db_connection():
-    conn = ('./flask_blog/database.db')
-    conn.row_factory = mysql.connector.Row
-    return conn
+    connection = mysql.connector.connect( host='homeysrv.local.lau.fm', port=3307, user='diary', password='Abc123321!', database='hannadiary')
+    return connection
 
 def get_post(post_id):
     conn = get_db_connection()
-    post = conn.execute('SELECT * FROM posts WHERE id = ?',
+    cursor = conn.cursor()
+    post = cursor.execute('SELECT * FROM posts WHERE id = ?',
                         (post_id,)).fetchone()
     conn.close()
     if post is None:
-        abort(404)
+        abort(404)  
     return post
 
 app = Flask(__name__)
@@ -23,7 +23,7 @@ app.config['SECRET_KEY'] = 'your secret key'
 @app.route('/')
 def index():
     conn = get_db_connection()
-    posts = conn.execute('SELECT * FROM posts').fetchall()
+    posts = conn.execute('SELECT * FROM posts')
     conn.close() 
     #print('hello testing')
     return render_template('index.html', posts=posts)
