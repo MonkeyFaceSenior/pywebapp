@@ -1,6 +1,5 @@
 # main page in flask diary app
 import mysql.connector
-import sqlite3
 from flask import Flask, render_template, request, url_for, flash, redirect
 from werkzeug.exceptions import abort
 config = {
@@ -20,22 +19,19 @@ def get_db_connection():
     conn = mysql.connector.connect(**config)
     return conn
 
-
-def get_db_connection_old():
-    conn = sqlite3.connect('./flask_blog/database.db')
-    conn.row_factory = sqlite3.Row
-    return conn
-
 def get_post(post_id):
     conn = get_db_connection()
     cursor = conn.cursor()
-    post = cursor.execute('SELECT * FROM posts WHERE id = ?',
-                        (post_id,)).fetchone()
+    cursor.execute('SELECT * FROM posts WHERE id = %s', (post_id,))
+    posts = cursor.fetchone()
+    if posts is None:
+        abort(404) 
+    # Convert rows to a list of dictionaries
+    columns = [desc[0] for desc in cursor.description] 
+    result = [dict(zip(columns, posts))]
     cursor.close()
     conn.close()
-    if post is None:
-        abort(404)  
-    return post
+    return result
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your secret key'
@@ -43,12 +39,17 @@ app.config['SECRET_KEY'] = 'your secret key'
 @app.route('/')
 def index():
     conn = get_db_connection()
-    posts = conn.execute('SELECT * FROM posts')
-    conn.close() 
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM posts ORDER BY id DESC;')
+    posts = cursor.fetchall() 
 
-    conn_old = get_db_connection_old()
-    posts_old = conn_old.execute('SELECT * FROM posts').fetchall()
-    conn_old.close() 
+       # Convert rows to a list of dictionaries
+    columns = [desc[0] for desc in cursor.description] 
+    result = [dict(zip(columns, post)) for post in posts]
+    
+
+    cursor.close()
+    conn.close() 
 
     return render_template('index.html', posts=result)
 
@@ -68,7 +69,7 @@ def create():
         else:
             conn = get_db_connection()
             cursor = conn.cursor()
-            cursor.execute('INSERT INTO posts (title, content) VALUES (?, ?)',
+            cursor.execute('INSERT INTO posts (title, content) VALUES (%s, %s)',
                          (title, content))
             conn.commit()
             cursor.close()
@@ -78,7 +79,7 @@ def create():
 
 @app.route('/<int:id>/edit', methods=('GET', 'POST'))
 def edit(id):
-    post = get_post(id)
+    post = get_post(id)    
 
     if request.method == 'POST':
         title = request.form['title']
@@ -89,9 +90,10 @@ def edit(id):
         else:
             conn = get_db_connection()
             cursor = conn.cursor()
-            cursor.execute('UPDATE posts SET title = ?, content = ?'
-                         ' WHERE id = ?',
+            cursor.execute('UPDATE posts SET title = %s, content = %s'
+                         ' WHERE id = %s',
                          (title, content, id))
+
             conn.commit()
             cursor.close()
             conn.close()
@@ -110,4 +112,3 @@ def delete(id):
     conn.close()
     flash('"{}" was successfully deleted!'.format(post['title']))
     return redirect(url_for('index'))
-# 

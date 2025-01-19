@@ -24,6 +24,20 @@ def get_db_connection_old():
     return conn
 
 
+def get_post(post_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM posts WHERE id = %s', (post_id,))
+    posts = cursor.fetchone()
+    if posts is None:
+        abort(404) 
+    # Convert rows to a list of dictionaries
+   # columns = [desc[0] for desc in cursor.description] 
+    #result = [dict(zip(columns, posts))]
+    cursor.close()
+    conn.close()
+    return posts
+
 conn = get_db_connection()
 cursor = conn.cursor()
 cursor.execute('SELECT * FROM posts')
@@ -45,3 +59,6 @@ conn_old.close()
 
 print("old!")
 print(posts_old)
+
+post2 = get_post(7)
+print(post2)
