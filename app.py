@@ -36,6 +36,8 @@ def get_post(post_id):
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your secret key'
 
+
+# default website here... eg: http://localhost:5000
 @app.route('/')
 def index():
     conn = get_db_connection()
@@ -53,11 +55,16 @@ def index():
 
     return render_template('index.html', posts=result)
 
+
+# view individual post here ... eg: http://localhost:5000/5 (show the detail of post #5)
 @app.route('/<int:post_id>')
 def post(post_id):
     post = get_post(post_id)
     return render_template('post.html', post=post)
 
+
+
+# create new post here ... eg: http://localhost:5000/create
 @app.route('/create', methods=('GET', 'POST'))
 def create():
     if request.method == 'POST':
@@ -77,6 +84,8 @@ def create():
             return redirect(url_for('index'))
     return render_template('create.html')
 
+
+# edit individual post here ... eg: http://localhost:5000/5/edit (show the detail of post #5 and allow for edit)
 @app.route('/<int:id>/edit', methods=('GET', 'POST'))
 def edit(id):
     post = get_post(id)    
@@ -101,6 +110,8 @@ def edit(id):
 
     return render_template('edit.html', post=post)
 
+
+# delete an individual post here ... eg: http://localhost:5000/5/delete (delete post #5)
 @app.route('/<int:id>/delete', methods=('POST',))
 def delete(id):
     post = get_post(id)
