@@ -1,7 +1,29 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h2>{% block title %} {{ post['title'] }} {% endblock %}</h2>
-    <span class="badge badge-primary">{{ post['created'] }}</span>
-    <p>{{ post['content'] }}</p>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>{{ post['title'] }}</title>
+  </head>
+  <body>
+    {% if session.get('authenticated') %}
+      <h1>
+        {{ post['title'] }}
+        <span id="speaker" style="cursor: pointer;">🔊</span>
+      </h1>
+      <p>{{ post['content'] }}</p>
+
+      <script>
+        document.getElementById('speaker').addEventListener('click', function() {
+          var msg = new SpeechSynthesisUtterance('{{ post["title"] }}');
+          window.speechSynthesis.speak(msg);
+        });
+      </script>
+    {% else %}
+      <p>You must <a href="{{ url_for('login') }}">login</a> to view this page.</p>
+    {% endif %}
+  </body>
+</html>
 {% endblock %}

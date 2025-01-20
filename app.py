@@ -1,6 +1,6 @@
 # main page in flask diary app
 import mysql.connector
-from flask import Flask, render_template, request, url_for, flash, redirect
+from flask import Flask, render_template, request, url_for, flash, redirect, session
 from werkzeug.exceptions import abort
 
 config = {
@@ -29,6 +29,7 @@ def get_post(post_id):
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your secret key'
+PASSWORD = '123123'  # Replace with your desired password
 
 # default website here... eg: http://localhost:5000
 @app.route('/')
@@ -46,6 +47,27 @@ def index():
     conn.close() 
 
     return render_template('index.html', posts=result)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        password = request.form['password']
+        if password == PASSWORD:
+            session['authenticated'] = True
+            return redirect(url_for('index'))
+        else:
+            flash('Invalid password', 'danger')
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('authenticated', None)
+    return redirect(url_for('index'))
+
+@app.before_request
+def restrict_to_authenticated_user():
+    if request.endpoint in ['post'] and not session.get('authenticated'):
+        return redirect(url_for('login'))
 
 # view individual post here ... eg: http://localhost:5000/5 (show the detail of post #5)
 @app.route('/<int:post_id>')
