@@ -11,13 +11,21 @@
     {% if session.get('authenticated') %}
       <h1>
         {{ post['title'] }}
-        <span id="speaker" style="cursor: pointer;">🔊</span>
+        <span id="title-speaker" style="cursor: pointer;">🔊</span>
       </h1>
-      <p>{{ post['content'] }}</p>
+      <p>
+        {{ post['content'] }}
+        <span id="content-speaker" style="cursor: pointer;">🔊</span>
+      </p>
 
       <script>
-        document.getElementById('speaker').addEventListener('click', function() {
+        document.getElementById('title-speaker').addEventListener('click', function() {
           var msg = new SpeechSynthesisUtterance('{{ post["title"] }}');
+          window.speechSynthesis.speak(msg);
+        });
+
+        document.getElementById('content-speaker').addEventListener('click', function() {
+          var msg = new SpeechSynthesisUtterance('{{ post["content"] }}');
           window.speechSynthesis.speak(msg);
         });
       </script>
