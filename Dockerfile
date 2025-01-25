@@ -1,21 +1,23 @@
 # Use official Python slim image
 FROM python:3.8-slim
 
-# set working dir
+# Set working directory
 WORKDIR /api-flask
 
-#copy necessary fies  into the dir
-COPY flask_blog/ static/ templates/ hello.py README test.html flaskenv.txt database.db app.py requirements.txt /api-flask/
+# Copy necessary files into the directory
 COPY flask_blog/ /api-flask/flask_blog/
 COPY static/ /api-flask/static/
 COPY templates/ /api-flask/templates/
-#COPY hello.py README test.html app.py requirements.txt databse.db test.html /api-flask/
+COPY hello.py README test.html flaskenv.txt database.db app.py requirements.txt /api-flask/
 
-# upgrade ip and install py dependencies
+# Upgrade pip and install Python dependencies
 RUN pip3 install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
-# expose port 5000 remember to set the port in the startup command
-EXPOSE 5000
+# Expose port 5050 because HomeySRV has a service on 5000 already
+EXPOSE 5050
 
-# run flask on non standard port 5001
-CMD ["flask","-e","flaskenv.txt", "run"]
+# Set environment variables from flaskenv.txt
+RUN set -a && source flaskenv.txt && set +a
+
+# Set the default command to run the Flask app
+CMD ["python", "app.py"]
