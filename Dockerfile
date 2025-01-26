@@ -20,8 +20,5 @@ EXPOSE 5050
 # Make the start.sh script executable
 RUN chmod +x /api-flask/start.sh
 
-# Set environment variables from flaskenv.txt
-RUN set -a && source /api-flask/flaskenv.txt && set +a
-
 # Set the default command to run the Flask app
 CMD ["/api-flask/start.sh"]
