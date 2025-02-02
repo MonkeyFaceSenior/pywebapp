@@ -1,4 +1,4 @@
-# main page in flask diary app
+import os
 import mysql.connector
 from flask import Flask, render_template, request, url_for, flash, redirect, session
 from werkzeug.exceptions import abort
@@ -29,24 +29,25 @@ def get_post(post_id):
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your secret key'
-PASSWORD = '123123'  # Replace with your desired password
+PASSWORD = 'your_password'  # Replace with your desired password
 
 # default website here... eg: http://localhost:5000
 @app.route('/')
 def index():
     conn = get_db_connection()
-    cursor = conn.cursor()
+    cursor = conn.cursor(dictionary=True)
     cursor.execute('SELECT * FROM posts ORDER BY id DESC;')
-    posts = cursor.fetchall() 
-
-    # Convert rows to a list of dictionaries
-    columns = [desc[0] for desc in cursor.description] 
-    result = [dict(zip(columns, post)) for post in posts]
-    
+    posts = cursor.fetchall()
     cursor.close()
-    conn.close() 
+    conn.close()
 
-    return render_template('index.html', posts=result)
+    # Check for image files
+    for post in posts:
+        post_date = post['created'].strftime('%Y-%m-%d')
+        image_path = f'c:\\users\\shiuming\\pictures\\{post_date}.jpg'
+        post['has_image'] = os.path.exists(image_path)
+
+    return render_template('index.html', posts=posts)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -97,9 +98,9 @@ def create():
 
 
 # edit individual post here ... eg: http://localhost:5000/5/edit (show the detail of post #5 and allow for edit)
-@app.route('/<int:id>/edit', methods=('GET', 'POST'))
-def edit(id):
-    post = get_post(id)    
+@app.route('/<int:post_id>/edit', methods=('GET', 'POST'))
+def edit(post_id):
+    post = get_post(post_id)    
 
     if request.method == 'POST':
         title = request.form['title']
@@ -110,9 +111,8 @@ def edit(id):
         else:
             conn = get_db_connection()
             cursor = conn.cursor()
-            cursor.execute('UPDATE posts SET title = %s, content = %s'
-                         ' WHERE id = %s',
-                         (title, content, id))
+            cursor.execute('UPDATE posts SET title = %s, content = %s WHERE id = %s',
+                         (title, content, post_id))
 
             conn.commit()
             cursor.close()
