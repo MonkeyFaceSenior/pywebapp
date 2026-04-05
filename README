@@ -29,3 +29,6 @@ Changing over the database to connect to the mariadb database on the fileserver 
     database name: hannadiary
     database user: diary
     database password: Abc123321!
+
+
+Testing code to use oauth and google
