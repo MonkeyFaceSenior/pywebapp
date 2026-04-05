@@ -23,8 +23,20 @@
                 <a class="nav-link" href="https://www.instagram.com/hanna.and.senna/" target="_blank">About Me 🥞</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{url_for('create')}}">New Post</a>
+              <a class="nav-link" href="{{ url_for('create') }}">New Post</a>
             </li>
+            {% if session.get('authenticated') %}
+            <li class="nav-item">
+              <span class="navbar-text ml-3">Signed in as {{ session.get('user') }}</span>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+            </li>
+            {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+            </li>
+            {% endif %}
          </ul>
         </div>
     </nav>
