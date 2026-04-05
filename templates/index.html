@@ -1,16 +1,20 @@
+{% extends 'base.html' %}
 
-    {% extends 'base.html' %}
-
-    {% block content %}
-    <h1>{% block title %} Welcome to Hanna's Diary 🧀 {% endblock %}</h1>
-    {% for post in posts %}
+{% block content %}
+<h1>{% block title %} Welcome to Hanna's Diary 🧀 {% endblock %}</h1>
+{% for post in posts %}
+    <h2>
         <a href="{{ url_for('post', post_id=post['id']) }}">
-            <h2>{{ post['title'] }}</h2>
+            {{ post['title'] }}
         </a>
-        <span class="badge badge-primary">{{ post['created'] }}</span>
-        <a href="{{ url_for('edit', id=post['id']) }}">
-            <span class="badge badge-warning">Edit</span>
-        </a>
-        <hr>
-    {% endfor %}
-    {% endblock %} 
+        {% if post['has_image'] %}
+            <img src="{{ url_for('static', filename='image_icon.png') }}" alt="Image available" />
+        {% endif %}
+    </h2>
+    <span class="badge badge-primary">{{ post['created'] }}</span>
+    <a href="{{ url_for('edit', id=post['id']) }}">
+        <span class="badge badge-warning">Edit</span>
+    </a>
+    <hr>
+{% endfor %}
+{% endblock %}
