@@ -1,12 +1,17 @@
 # main page in flask diary app
+import os
 import mysql.connector
+from dotenv import load_dotenv
 from flask import Flask, render_template, request, url_for, flash, redirect, session
+from authlib.integrations.flask_client import OAuth
 from werkzeug.exceptions import abort
+
+load_dotenv()
 
 config = {
   'user': 'diary',
   'password': 'Abc123321!',
-  'host': '192.168.69.207',
+  'host': 'homeysrv.local.lau.fm',
   'port': 3307,
   'database': 'hannadiary',
   'raise_on_warnings': True
@@ -28,8 +33,22 @@ def get_post(post_id):
     return post
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your secret key'
-PASSWORD = '123123'  # Replace with your desired password
+app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY', 'your-secret-key')
+app.config['GOOGLE_CLIENT_ID'] = os.environ.get('GOOGLE_CLIENT_ID')
+app.config['GOOGLE_CLIENT_SECRET'] = os.environ.get('GOOGLE_CLIENT_SECRET')
+app.config['OAUTHLIB_INSECURE_TRANSPORT'] = os.environ.get('OAUTHLIB_INSECURE_TRANSPORT', '1')
+
+oauth = OAuth(app)
+oauth.register(
+    name='google',
+    client_id=app.config['GOOGLE_CLIENT_ID'],
+    client_secret=app.config['GOOGLE_CLIENT_SECRET'],
+    access_token_url='https://oauth2.googleapis.com/token',
+    authorize_url='https://accounts.google.com/o/oauth2/v2/auth',
+    api_base_url='https://www.googleapis.com/oauth2/v1/',
+    userinfo_endpoint='https://openidconnect.googleapis.com/v1/userinfo',
+    client_kwargs={'scope': 'openid email profile'},
+)
 
 # default website here... eg: http://localhost:5000
 @app.route('/')
@@ -48,25 +67,45 @@ def index():
 
     return render_template('index.html', posts=result)
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login')
 def login():
-    if request.method == 'POST':
-        password = request.form['password']
-        if password == PASSWORD:
-            session['authenticated'] = True
-            return redirect(url_for('index'))
-        else:
-            flash('Invalid password', 'danger')
+    if session.get('authenticated'):
+        return redirect(url_for('index'))
     return render_template('login.html')
+
+@app.route('/login/google')
+def login_google():
+    if not app.config['GOOGLE_CLIENT_ID'] or not app.config['GOOGLE_CLIENT_SECRET']:
+        flash('Google OAuth is not configured. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET.', 'danger')
+        return redirect(url_for('login'))
+    redirect_uri = url_for('authorize_google', _external=True)
+    return oauth.google.authorize_redirect(redirect_uri)
+
+@app.route('/authorize/google')
+def authorize_google():
+    token = oauth.google.authorize_access_token()
+    user_info = None
+    try:
+        user_info = oauth.google.parse_id_token(token)
+    except Exception:
+        pass
+    if not user_info:
+        resp = oauth.google.get('userinfo')
+        user_info = resp.json()
+
+    session['authenticated'] = True
+    session['user'] = user_info.get('email') or user_info.get('name') or 'Google user'
+    return redirect(url_for('index'))
 
 @app.route('/logout')
 def logout():
     session.pop('authenticated', None)
+    session.pop('user', None)
     return redirect(url_for('index'))
 
 @app.before_request
 def restrict_to_authenticated_user():
-    if request.endpoint in ['post'] and not session.get('authenticated'):
+    if request.endpoint in ['post', 'create', 'edit', 'delete'] and not session.get('authenticated'):
         return redirect(url_for('login'))
 
 # view individual post here ... eg: http://localhost:5000/5 (show the detail of post #5)
